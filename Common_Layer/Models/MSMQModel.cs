@@ -49,7 +49,7 @@ namespace Common_Layer.Models
                 {
                     Port = 587,
                     EnableSsl = true,
-                    Credentials = new NetworkCredential("adityawaghmare@gmail.com", "sorbyrmywrhvkaax"),
+                    Credentials = new NetworkCredential("adityawaghmare31@gmail.com", "gwos uqtj hkgb yqut"),
                 };
                 mailMessage.From = new MailAddress("adityawaghmare31@gmail.com");
                 mailMessage.To.Add(new MailAddress(recieverEmailAddr));

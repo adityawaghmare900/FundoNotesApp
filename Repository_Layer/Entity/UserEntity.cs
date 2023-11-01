@@ -16,9 +16,6 @@ namespace Repository_Layer.Entity
         public string Email { get; set; }
         public string Password { get; set; }
 
-        public static implicit operator string(UserEntity v)
-        {
-            throw new NotImplementedException();
-        }
+        
     }
 }

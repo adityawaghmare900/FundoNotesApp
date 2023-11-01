@@ -11,6 +11,12 @@ namespace Business_Layer.Interfaces
         UserEntity UserRegistration(RegisterModel model);
 
         string UserLogin(LoginModel loginmodel);
+        public bool CheckExist(string email);
+        public UserEntity CheckEmailPresent(string email);
+        public List<UserEntity> GetList();
+        public string ForgotPassword(string Email);
+        public bool ResetPassword(string email, string password, string confirmPassword);
+        public bool ResetnewPassword(string email, resetPassword reset);
 
     }
 }
