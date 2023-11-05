@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository_Layer.Context;
 
 namespace Repository_Layer.Migrations
 {
     [DbContext(typeof(FundoDbContext))]
-    partial class FundoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231104152656_tables")]
+    partial class tables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,14 +28,14 @@ namespace Repository_Layer.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Label")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<long>("NoteId")
                         .HasColumnType("bigint");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");
+
+                    b.Property<string>("labelName")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 

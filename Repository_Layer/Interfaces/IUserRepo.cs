@@ -14,8 +14,7 @@ namespace Repository_Layer.Interfaces
         public UserEntity CheckEmailPresent(string email);
         public List<UserEntity> GetList();
         public string ForgotPassword(string Email);
-        public bool ResetPassword(string email, string password, string confirmPassword);
-        public bool ResetnewPassword(string email, resetPassword reset);
+        public bool ResetPassword(string email, resetPassword reset);
 
 
 

@@ -31,7 +31,7 @@ namespace Repository_Layer.Services
             entity.First_Name = model.FirstName;
             entity.Last_Name = model.LastName;
             entity.Email = model.Email;
-            entity.Password = model.Password;
+            entity.Password = EncryptPass(model.Password);
             fundoDbContext.Users.Add(entity);
             var result = fundoDbContext.SaveChanges();
             if (result > 0)
@@ -44,6 +44,30 @@ namespace Repository_Layer.Services
             }
         }
 
+        //public string Login(UserLogin userLogin)
+        //{
+        //    try
+        //    {
+                
+        //        UserEntity user = this.fundoDbContext.Users.FirstOrDefault(x => x.Email == userLogin.Email && x.Password == userLogin.EncodedPassword);
+        //        string dpass = decreptPass(user.Password);
+        //        if (dpass == userLogin.Password && user != null) 
+        //        {
+        //            var token = GenerateJWTToken(user.Email, user.UserId);
+        //            return token;
+        //        }
+        //        else
+        //        {
+        //            return null;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //    }
+
+
         public string UserLogin(LoginModel loginModel)
         {
             var EncodedPassword = EncryptPass(loginModel.Password);
@@ -55,7 +79,7 @@ namespace Repository_Layer.Services
             }
             else
             {
-                return "Login Failed";
+                return null;
             }
         }
         
@@ -76,6 +100,18 @@ namespace Repository_Layer.Services
             }
         }
 
+        //public string DecreptPass(string encodedData){
+        //    try
+        //    {
+        //        UTF8Encoding encoder = new UTF8Encoding();
+        //        Decoder utfDecode = encoder.GetDecoder();
+        //        byte[] todecode_byte = Convert.FromBase64String(encodedData);
+        //        int charCount = utfDecode.GetCharCount(todecode_byte, 0, todecode_byte.Length);
+        //        char[] decoded char= new char[charCount];
+
+        //    }
+        //}
+
         public string DecodeFrom64(string encodedData)
         {
             UTF8Encoding encoder = new UTF8Encoding();
@@ -88,7 +124,33 @@ namespace Repository_Layer.Services
             return result;
         }
 
-        private string GenerateJWTToken(string Email,int userId)
+        //private string GenerateJWTToken(string Email,long userId)
+        //{
+        //    try
+        //    {
+        //        var loginTokenHandler = new JwtSecurityTokenHandler();
+        //        var loginTokenKey= new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
+        //        var loginTokenDescriptior = new SecurityTokenDescriptor
+        //        {
+        //            Subject = new ClaimsIdentity(new Claim[]
+        //            {
+        //                new Claim("Email",Email),
+        //                new Claim("userId",userId.ToString())
+        //            }),
+        //            Expires = DateTime.UtcNow.AddHours(15),
+        //            SigningCredentials = new SigningCredentials(loginTokenKey, SecurityAlgorithms.HmacSha256Signature)
+        //        };
+        //        var token = loginTokenHandler.CreateToken(loginTokenDescriptior);
+        //        return loginTokenHandler.WriteToken(token);
+        //    }
+        //    catch(Exception ex)
+        //    {
+        //        throw ex.InnerException;
+        //    }
+        //}
+
+
+        private string GenerateJWTToken(string Email, int userId)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -98,10 +160,10 @@ namespace Repository_Layer.Services
                 new Claim("UserId",userId.ToString())
             };
             var token = new JwtSecurityToken(configuration["Jwt:Issuer"],
-                configuration["Jwt:Audience"],
-                claims,
-                expires: DateTime.Now.AddMinutes(15),
-                signingCredentials: credentials);
+            configuration["Jwt:Audience"],
+            claims,
+            expires: DateTime.Now.AddMinutes(15),
+            signingCredentials: credentials);
 
 
             return new JwtSecurityTokenHandler().WriteToken(token);
@@ -119,9 +181,17 @@ namespace Repository_Layer.Services
             try
             {
                 var checkEmail = fundoDbContext.Users.FirstOrDefault(x => x.Email == email);
-                return checkEmail;
+                if (checkEmail != null)
+                {
+                    return checkEmail;
+
+                }
+                else
+                {
+                    return null;
+                }
             }
-            catch(Exception ex) 
+            catch(Exception) 
             {
                 throw;
             }
@@ -134,7 +204,7 @@ namespace Repository_Layer.Services
                 List<UserEntity> result = (List<UserEntity>)fundoDbContext.Users.ToList();
                 return result;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 throw;
             }
@@ -163,14 +233,15 @@ namespace Repository_Layer.Services
             }
         }
 
-        public bool ResetPassword(string email, string password, string confirmPassword)
+        public bool ResetPassword(string email, resetPassword reset)
         {
             try
             {
-                if (password.Equals(confirmPassword))
+
+                if (reset.Password.Equals(reset.ConfirmPassword)) 
                 {
                     var user = fundoDbContext.Users.Where(x => x.Email == email).FirstOrDefault();
-                    user.Password = confirmPassword;
+                    user.Password = EncryptPass(reset.ConfirmPassword);
                     fundoDbContext.SaveChanges();
                     return true;
                 }
@@ -185,25 +256,51 @@ namespace Repository_Layer.Services
             }
         }
 
-        public bool ResetnewPassword(string email, resetPassword reset)
-        {
-            try
-            {
-                if (reset.Password.Equals(reset.ConfirmPassword))
-                {
-                    var user = fundoDbContext.Users.Where(x => x.Email == email).FirstOrDefault();
-                    user.Password = reset.ConfirmPassword;
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            catch(Exception)
-            {
-                throw;
-            }
-        }
+        //public bool ResetPassword(string email, resetPassword reset)
+        //{
+        //    try
+        //    {
+        //        string encyptedPass = EncryptPass(reset.Password);
+        //        string encryptedConformPass = EncryptPass(reset.ConfirmPassword);
+        //        if (encyptedPass.Equals(encryptedConformPass))
+        //        {
+        //            var user = fundoDbContext.Users.Where(x => x.Email == email).FirstOrDefault();
+        //            user.Password = encryptedConformPass;
+        //            fundoDbContext.SaveChanges();
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch (Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+        //public bool ResetnewPassword(string email, resetPassword reset)
+        //{
+        //    try
+        //    {
+        //        if (reset.Password.Equals(reset.ConfirmPassword))
+        //        {
+        //            var user = fundoDbContext.Users.Where(x => x.Email == email).FirstOrDefault();
+        //            user.Password = reset.ConfirmPassword;
+        //            return true;
+        //        }
+        //        else
+        //        {
+        //            return false;
+        //        }
+        //    }
+        //    catch(Exception)
+        //    {
+        //        throw;
+        //    }
+        //}
+
+
     }
 }

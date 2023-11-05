@@ -43,14 +43,12 @@ namespace Business_Layer.Services
             return userRepo.ForgotPassword(Email);
         }
 
-        public bool ResetPassword(string email, string password, string confirmPassword)
+        public bool ResetPassword(string email, resetPassword reset)
         {
-            return userRepo.ResetPassword(email, password, confirmPassword);
+            return userRepo.ResetPassword(email, reset);
+
         }
-        public bool ResetnewPassword(string email, resetPassword reset)
-        {
-            return userRepo.ResetnewPassword(email, reset);
-        }
+      
 
 
     }

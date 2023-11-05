@@ -1,12 +1,16 @@
 ﻿using Business_Layer.Interfaces;
 using Common_Layer.Models;
+using GreenPipes.Internals.Mapping;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.Logging;
 using Repository_Layer.Entity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
+using System.Security.Claims;
 
 namespace FundoNotesApp.Controllers
 {
@@ -15,9 +19,11 @@ namespace FundoNotesApp.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserBusiness userBusiness;
-        public UserController(IUserBusiness userBusiness)
+        private readonly ILogger<UserController> log;
+        public UserController(IUserBusiness userBusiness, ILogger<UserController> log)
         {
             this.userBusiness = userBusiness;
+            this.log = log;
         }
 
         [HttpPost]
@@ -31,13 +37,17 @@ namespace FundoNotesApp.Controllers
             }
             else
             {
+                log.LogInformation("Registration Started");
+
                 var result = userBusiness.UserRegistration(model);
                 if (result != null)
                 {
+                    log.LogInformation("Registration was successfull");
                     return Ok(new ResponseModel<UserEntity> { Status = true, Message = "Registration Successfull", Data = result });
                 }
                 else
                 {
+                    log.LogError("Registration failed...");
                     return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Registration Failed" });
                 }
             }
@@ -48,12 +58,15 @@ namespace FundoNotesApp.Controllers
         public IActionResult Login(LoginModel loginmodel)
         {
             var result = userBusiness.UserLogin(loginmodel);
-            if (result !=null)
+            if (result != null)
             {
+                log.LogInformation("login successfull");
                 return Ok(new ResponseModel<string> { Status = true, Message = "login Seccessfull", Data = result });
             }
             else
             {
+                log.LogInformation("login failed...");
+
                 return BadRequest(new ResponseModel<string> { Status = false, Message = "login Failed" });
             }
         }
@@ -63,12 +76,15 @@ namespace FundoNotesApp.Controllers
         public IActionResult CheckEmailPresent(string email)
         {
             var result = userBusiness.CheckEmailPresent(email);
-            if (result != null )
+            if (result != null)
             {
+                log.LogInformation("Email Exist");
                 return Ok(new ResponseModel<UserEntity> { Status = true, Message = "Email Exist", Data = result });
             }
-            else {
-                return BadRequest(new ResponseModel<UserEntity> { Status = true, Message = "Email Does Not Exist", Data = result });
+            else
+            {
+                log.LogInformation("Email Not Exist");
+                return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Email Does Not Exist", Data = result });
             };
         }
 
@@ -77,12 +93,16 @@ namespace FundoNotesApp.Controllers
         public IActionResult GetList()
         {
             var result = userBusiness.GetList();
-            if(result != null)
+            if (result != null)
             {
-                return Ok(new ResponseModel<List<UserEntity>> { Status=true, Message="Details",Data=result});
+                log.LogInformation("Details");
+
+                return Ok(new ResponseModel<List<UserEntity>> { Status = true, Message = "Details", Data = result });
             }
             else
             {
+                log.LogInformation("Failed to fetch details ");
+
                 return BadRequest(new ResponseModel<List<UserEntity>> { Status = false, Message = "Failed To Fetch Details" });
             }
         }
@@ -91,10 +111,10 @@ namespace FundoNotesApp.Controllers
         [Route("ForgotPassword")]
         public IActionResult ForgotPassword(string Email)
         {
-            var result=userBusiness.ForgotPassword(Email);
+            var result = userBusiness.ForgotPassword(Email);
             if (result != null)
             {
-                return Ok(new ResponseModel<string> { Status = true,Message="forgot password",Data=result });
+                return Ok(new ResponseModel<string> { Status = true, Message = "forgot password", Data = result });
             }
             else
             {
@@ -104,32 +124,34 @@ namespace FundoNotesApp.Controllers
 
         [HttpPost]
         [Route("ResetPassword")]
-        public IActionResult ResetPassword(string email, string password, string confirmPassword)
+        public IActionResult ResetPassword(resetPassword reset)
         {
-            var result= userBusiness.ResetPassword(email, password, confirmPassword);
-            if(result)
+            string email = User.Claims.FirstOrDefault(x => x.Type == "Email").Value;
+            var result = userBusiness.ResetPassword(email, reset);
+            if (result != null)
             {
-                return Ok(new ResponseModel<string> { Status = true, Message = "Password Has Reset" });
+                return Ok(new ResponseModel<resetPassword> { Status = true, Message = "Password Reset successfully" });
             }
             else
             {
-                return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Password Reset Failed" });
-            }
-        }
-
-        [HttpPost]
-        [Route("ResetNewPassword")]
-        public IActionResult ResetnewPassword(string email, resetPassword reset)
-        {
-            var result = userBusiness.ResetnewPassword(email, reset);
-            if (result)
-            {
-                return Ok(new ResponseModel<string> { Status = true, Message = "Reset New Password" });
-            }
-            else
-            {
-                return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Failed" });
+                return this.BadRequest(new ResponseModel<resetPassword> { Status = false, Message = "Password Reset Failed" });
             }
         }
     }
 }
+
+        //[HttpPost]
+        //[Route("ResetNewPassword")]
+        //public IActionResult ResetnewPassword(string email, resetPassword reset)
+        //{
+        //    var result = userBusiness.ResetnewPassword(email, reset);
+        //    if (result)
+        //    {
+        //        return Ok(new ResponseModel<string> { Status = true, Message = "Reset New Password" });
+        //    }
+        //    else
+        //    {
+        //        return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Failed" });
+        //    }
+        //}
+    

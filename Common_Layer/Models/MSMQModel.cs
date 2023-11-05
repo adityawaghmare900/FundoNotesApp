@@ -20,7 +20,7 @@ namespace Common_Layer.Models
             messageQueue.Path = @".\Private$\Token";
             try
             {
-                if (!MessageQueue.Exists(messageQueue.Path)) ;
+                if (!MessageQueue.Exists(messageQueue.Path)) 
                 {
                     MessageQueue.Create(messageQueue.Path);
                 }
@@ -30,9 +30,9 @@ namespace Common_Layer.Models
                 messageQueue.BeginReceive();
                 messageQueue.Close();
             }
-            catch (Exception ex)
+            catch (Exception ex )
             {
-                throw ex;
+                throw ex; 
             }
         }
 
