@@ -1,14 +1,22 @@
 ﻿using Business_Layer.Interfaces;
 using Business_Layer.Services;
 using Common_Layer.Models;
+using Experimental.System.Messaging;
+using GreenPipes.Caching;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Caching.Distributed;
+using Newtonsoft.Json;
+using NLog;
+using NLog.Fluent;
 using Repository_Layer.Entity;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace FundoNotesApp.Controllers
 {
@@ -16,10 +24,12 @@ namespace FundoNotesApp.Controllers
     [ApiController]
     public class NoteController : ControllerBase
     {
-        readonly INoteBusiness noteBusiness;
-        public NoteController(INoteBusiness noteBusiness)
+        private readonly INoteBusiness noteBusiness;
+        private readonly IDistributedCache distributedCache;
+        public NoteController(INoteBusiness noteBusiness,IDistributedCache distributedCache)
         {
             this.noteBusiness = noteBusiness;
+            this.distributedCache= distributedCache;
         }
         [Authorize]
         [HttpPost]
@@ -57,9 +67,9 @@ namespace FundoNotesApp.Controllers
         [Authorize]
         [HttpPut]
         [Route("Update")]
-        public IActionResult UpdateNoteModel(long noteid, long userid, UpdateNoteModel model)
+        public IActionResult UpdateNoteModel(long noteid,  UpdateNoteModel model)
         {
-            var result = noteBusiness.UpdateNoteModel(noteid, userid, model);
+            var result = noteBusiness.UpdateNoteModel(noteid, model);
             if (result ==true)
             {
                 return Ok(new ResponseModel<bool> { Status = true, Message = "Updated successfull" });
@@ -179,6 +189,75 @@ namespace FundoNotesApp.Controllers
             else
             {
                 return BadRequest(new ResponseModel<NoteEntity> { Status = false, Message = "Reminder Not set" });
+            }
+        }
+
+        [HttpGet]
+        [Route("GetAllNotes")]
+        public async Task<IActionResult> AllNotes()
+        {
+            try
+            {
+                var CacheKey = "NotesList";
+                List<NoteEntity> NoteList;
+                byte[] RedisNoteList = await distributedCache.GetAsync(CacheKey);
+                if(RedisNoteList != null)
+                {
+                   // log.logDebug("Getting the list from Redis Cache");
+                    var SerilizedListList = Encoding.UTF8.GetString(RedisNoteList);
+                    NoteList = JsonConvert.DeserializeObject<List<NoteEntity>>(SerilizedListList);
+                }
+                else
+                {
+                   // Logger.LogDebug("Setting the list to cache which is requested for the first time");
+                    NoteList = (List<NoteEntity>)noteBusiness.GetList();
+                    var SerilizedNoteList = JsonConvert.SerializeObject(NoteList);
+                    var redisNoteList = Encoding.UTF8.GetBytes(SerilizedNoteList);
+                    var options = new DistributedCacheEntryOptions().SetAbsoluteExpiration(DateTime.Now.AddMinutes(10)).SetSlidingExpiration(TimeSpan.FromMinutes(5));
+                    await distributedCache. SetAsync(CacheKey, redisNoteList, options);
+                }
+               // Log.LogInformation("Got the notes list successfully from Redis");
+                return Ok(NoteList);
+            }
+            catch(Exception ex)
+            {
+               // Log.LogCritical(ex, "Exception thorn");
+                return BadRequest(new {Status=false,Message=ex.Message});
+            }
+
+        }
+
+
+        [Authorize]
+        [HttpGet]
+        [Route("Date")]
+        public IActionResult SerachNoteByDate(DateTime date)
+        {
+
+            List<NoteEntity> result = noteBusiness.SerachNoteByDate(date);
+            if (result != null)
+            {
+                return Ok(new ResponseModel<List<NoteEntity>> { Status=true, Message="Note Details", Data=result});
+            }
+            else
+            {
+                return BadRequest(new ResponseModel<List<NoteEntity>> { Status = false, Message = "No such note exist" });
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("Title")]
+        public IActionResult SerachNoteByTitle(string title)
+        {
+            List<NoteEntity> result = noteBusiness.SerachNoteByTitle(title);
+            if (result != null)
+            {
+                return Ok(new ResponseModel<List<NoteEntity>> { Status = true, Data = result });
+            }
+            else
+            {
+                return BadRequest(new ResponseModel<List<NoteEntity>> { Status = false, Message="No such title exist" });
             }
         }
     }

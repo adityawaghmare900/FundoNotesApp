@@ -40,10 +40,12 @@ namespace FundoNotesApp
             services.AddDbContext<FundoDbContext>(a => a.UseSqlServer(Configuration["ConnectionStrings:FundoAppDb"]));
             services.AddTransient<IUserRepo, UserRepo>();
             services.AddTransient<IUserBusiness, UserBusiness>();
-            services.AddTransient<INoteRepo , NoteRepo>();
+            services.AddTransient<INoteRepo, NoteRepo>();
             services.AddTransient<INoteBusiness, NoteBusiness>();
-          //  services.AddTransient<ILabelRepo, LabelRepo>();
-            // services.AddTransient<ILabelBusiness, LabelBusiness>();
+            services.AddTransient<ILabelRepo, LabelRepo>();
+            services.AddTransient<ILabelBusiness, LabelBusiness>();
+            services.AddTransient<ICollabratorRepo, CollabratorRepo>();
+            services.AddTransient<ICollabratorBusiness, CollabratorBusiness>();
             services.AddSwaggerGen();
 
 
@@ -88,7 +90,13 @@ namespace FundoNotesApp
                 }));
             });
             services.AddMassTransitHostedService();
-          //  services.AddControllers();
+            //  services.AddControllers();
+            services.AddStackExchangeRedisCache(options =>
+            {
+                options.Configuration = "localhost:6379";
+            });
+            services.AddMemoryCache();
+        
 
 
             services.AddAuthentication(x =>

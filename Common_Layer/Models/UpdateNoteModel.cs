@@ -13,8 +13,7 @@ namespace Common_Layer.Models
         public bool IsArchive { get; set; }
         public bool IsPin { get; set; }
         public bool IsTrash { get; set; }
-        public DateTime? Createat { get; set; }
         public DateTime? Updateat { get; set; }
-        public int UserId { get; set; }
+      //  public int UserId { get; set; }
     }
 }

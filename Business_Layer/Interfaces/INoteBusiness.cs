@@ -12,7 +12,7 @@ namespace Business_Layer.Interfaces
 
         public List<NoteEntity> GetList();
 
-        public bool UpdateNoteModel(long noteid, long userid, UpdateNoteModel model);
+        public bool UpdateNoteModel(long noteid, UpdateNoteModel model);
 
         public bool deleteNote(long noteId, long userId);
 
@@ -27,6 +27,10 @@ namespace Business_Layer.Interfaces
         public NoteEntity Color(long noteId, long userid, string color);
 
         public NoteEntity Reminder(long noteId, long userid, DateTime reminder);
+
+        public List<NoteEntity> SerachNoteByDate(DateTime date);
+
+        public List<NoteEntity> SerachNoteByTitle(string title);
 
 
 

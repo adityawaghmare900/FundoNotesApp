@@ -27,9 +27,9 @@ namespace Business_Layer.Services
             return noteRepo.GetList();
         }
 
-        public bool UpdateNoteModel(long noteid, long userid, UpdateNoteModel model)
+        public bool UpdateNoteModel(long noteid,  UpdateNoteModel model)
         {
-            return noteRepo.UpdateNoteModel(noteid,userid,model );
+            return noteRepo.UpdateNoteModel(noteid,model );
         }
 
         public bool deleteNote(long noteId, long userId)
@@ -65,6 +65,16 @@ namespace Business_Layer.Services
         public NoteEntity Reminder(long noteId, long userid, DateTime reminder)
         {
             return noteRepo.Reminder(noteId,userid,reminder);
+        }
+
+        public List<NoteEntity> SerachNoteByDate(DateTime date)
+        {
+            return noteRepo.SerachNoteByDate(date);
+        }
+
+        public List<NoteEntity> SerachNoteByTitle(string title)
+        {
+            return noteRepo.SerachNoteByTitle(title);
         }
 
 

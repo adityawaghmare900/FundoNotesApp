@@ -6,10 +6,9 @@ using System.Text.Json.Serialization;
 
 namespace Common_Layer.Models
 {
-    public class labelModel
+     public class CollabratorModel
     {
-        public string Label { get; set; }
-        //public int UserId {  get; set; }
-        //public long NoteId {  get; set; }
+        public string email { get; set; }   
+        
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Common_Layer.Models;
+using Microsoft.VisualBasic;
 using Repository_Layer.Context;
 using Repository_Layer.Entity;
 using Repository_Layer.Interfaces;
@@ -65,11 +66,11 @@ namespace Repository_Layer.Services
         }
 
 
-        public bool UpdateNoteModel(long noteid, long userid, UpdateNoteModel model)
+        public bool UpdateNoteModel(long noteid, UpdateNoteModel model)
         {
             try
             {
-                var Check = fundoDbContext.Notes.FirstOrDefault(x => x.NoteId == noteid && x.UserId == userid);
+                var Check = fundoDbContext.Notes.FirstOrDefault(x => x.NoteId == noteid);
                 if (Check != null)
                 {
                     Check.title = model.title;
@@ -80,7 +81,7 @@ namespace Repository_Layer.Services
                     Check.IsArchive = model.IsArchive;
                     Check.IsPin = model.IsPin;
                     Check.IsTrash = model.IsTrash;
-                    Check.Createat = DateTime.Now;
+                    
                     Check.Updateat = DateTime.Now;
                     fundoDbContext.SaveChanges();
                     return true;                   
@@ -280,6 +281,48 @@ namespace Repository_Layer.Services
                 throw ex;
             }
         }
+
+
+        public List<NoteEntity> SerachNoteByDate(DateTime date)
+        {
+            try
+            {
+                List<NoteEntity> result = fundoDbContext.Notes.Where(x => x.Createat == date).ToList();
+                if (result != null)
+                {
+                    return result;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        public List<NoteEntity> SerachNoteByTitle(string title)
+        {
+            try
+            {
+                List<NoteEntity> result = fundoDbContext.Notes.Where(x => x.title==title).ToList();
+                if (result != null)
+                {
+                    return result;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+            }
+            
     }
     }
 

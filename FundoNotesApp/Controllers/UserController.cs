@@ -140,18 +140,4 @@ namespace FundoNotesApp.Controllers
     }
 }
 
-        //[HttpPost]
-        //[Route("ResetNewPassword")]
-        //public IActionResult ResetnewPassword(string email, resetPassword reset)
-        //{
-        //    var result = userBusiness.ResetnewPassword(email, reset);
-        //    if (result)
-        //    {
-        //        return Ok(new ResponseModel<string> { Status = true, Message = "Reset New Password" });
-        //    }
-        //    else
-        //    {
-        //        return BadRequest(new ResponseModel<UserEntity> { Status = false, Message = "Failed" });
-        //    }
-        //}
     

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Repository_Layer.Migrations
 {
-    public partial class tables : Migration
+    public partial class data : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -55,12 +55,39 @@ namespace Repository_Layer.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Collaborators",
+                columns: table => new
+                {
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    email = table.Column<string>(nullable: true),
+                    UserId = table.Column<int>(nullable: false),
+                    NoteId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Collaborators", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Collaborators_Notes_NoteId",
+                        column: x => x.NoteId,
+                        principalTable: "Notes",
+                        principalColumn: "NoteId",
+                        onDelete: ReferentialAction.NoAction);
+                    table.ForeignKey(
+                        name: "FK_Collaborators_Users_UserId",
+                        column: x => x.UserId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.NoAction);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Labels",
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    labelName = table.Column<string>(nullable: true),
+                    Label = table.Column<string>(nullable: true),
                     UserId = table.Column<int>(nullable: false),
                     NoteId = table.Column<long>(nullable: false)
                 },
@@ -82,6 +109,16 @@ namespace Repository_Layer.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Collaborators_NoteId",
+                table: "Collaborators",
+                column: "NoteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Collaborators_UserId",
+                table: "Collaborators",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Labels_NoteId",
                 table: "Labels",
                 column: "NoteId");
@@ -99,6 +136,9 @@ namespace Repository_Layer.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "Collaborators");
+
             migrationBuilder.DropTable(
                 name: "Labels");
 

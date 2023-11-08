@@ -32,6 +32,8 @@ namespace Repository_Layer.Services
             entity.Last_Name = model.LastName;
             entity.Email = model.Email;
             entity.Password = EncryptPass(model.Password);
+            entity.Createat = DateTime.Now;
+            entity.Updateat=DateTime.Now;
             fundoDbContext.Users.Add(entity);
             var result = fundoDbContext.SaveChanges();
             if (result > 0)
@@ -280,26 +282,33 @@ namespace Repository_Layer.Services
         //    }
         //}
 
-        //public bool ResetnewPassword(string email, resetPassword reset)
-        //{
-        //    try
-        //    {
-        //        if (reset.Password.Equals(reset.ConfirmPassword))
-        //        {
-        //            var user = fundoDbContext.Users.Where(x => x.Email == email).FirstOrDefault();
-        //            user.Password = reset.ConfirmPassword;
-        //            return true;
-        //        }
-        //        else
-        //        {
-        //            return false;
-        //        }
-        //    }
-        //    catch(Exception)
-        //    {
-        //        throw;
-        //    }
-        //}
+        
+        public UserTicket CreateTicketForPassword(string emailId,string token)
+        {
+            try
+            {
+                var userDetails = fundoDbContext.Users.FirstOrDefault(x => x.Email == emailId);
+                if (userDetails != null)
+                {
+                    UserTicket userResponse = new UserTicket
+                    {
+                        FirstName = userDetails.First_Name,
+                        LastName = userDetails.Last_Name,
+                        EmailId = emailId,
+                        IssueAt = DateTime.Now
+                    };
+                    return userResponse;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception ex)
+            {
+                throw ex;
+            }
+        }
 
 
     }
